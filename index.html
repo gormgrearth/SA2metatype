@@ -1129,21 +1129,31 @@
           renderGrid();
           return;
         }
-        const q = fb.query(
-          fb.collection(db, "metatypes"),
-          fb.orderBy("categorie"),
-          fb.orderBy("nom"),
-        );
+
+        const q = fb.query(fb.collection(db, "metatypes"));
+
         fb.onSnapshot(
           q,
           (snap) => {
-            metatypes = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+            console.log("Firestore : documents reçus =", snap.size);
+
+            metatypes = snap.docs.map((d) => ({
+              id: d.id,
+              ...d.data(),
+            }));
+
+            console.log("Métatypes chargés =", metatypes);
+
             populateCategoryFilter();
             renderGrid();
           },
           (err) => {
-            $("#grid").innerHTML =
-              `<div class="empty"><b>Connexion impossible</b>${err.message}</div>`;
+            console.error("Erreur Firestore :", err);
+
+            $("#grid").innerHTML = `<div class="empty">
+          <b>Erreur Firestore</b>
+          <div>${escapeHtml(err.message)}</div>
+        </div>`;
           },
         );
       }
